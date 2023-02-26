@@ -40,10 +40,13 @@ defmodule Concerts.Bot do
           state
 
         {:ok, updates} ->
-          last_seen = handle_updates(updates, last_seen)
+          updated_last_seen = handle_updates(updates, last_seen)
+          Enum.each(updates, fn update ->
+            GenServer.cast(self(), {:update, update})
+          end)
 
           # update last_seen so we only get new updates on the next check
-          %{state | last_seen: last_seen}
+          %{state | last_seen: updated_last_seen}
       end
 
     schedule_next_check()
@@ -53,13 +56,37 @@ defmodule Concerts.Bot do
   defp handle_updates(updates, last_seen) do
     updates
     |> Enum.map(fn update ->
-      Logger.info("Updated received: #{inspect(update)}")
-      broadcast(update)
-
       update["update_id"]
     end)
     |> Enum.max(fn -> last_seen end)
   end
+
+  # can't get pattern matching on the update arg to work..
+  @impl GenServer
+  def handle_cast({:update, update}, %{bot_key: bot_key} = state) do
+    case message_text(update) do
+      "ping" ->
+        Telegram.Api.request(bot_key, "sendMessage", chat_id: chat_id(update), text: "pong")
+        {:noreply, state}
+      _ ->
+        {:noreply, state}
+    end
+  end
+
+  defp message_text(update) do
+    update
+      |> Map.get("message")
+      |> Map.get("text")
+  end
+
+  defp chat_id(update) do
+    update
+      |> Map.get("message")
+      |> Map.get("chat")
+      |> Map.get("id")
+  end
+
+  def handle_cast({:update, _update}, state), do: {:noreply, state}
 
   defp broadcast(update) do
     Phoenix.PubSub.broadcast!(Concerts.PubSub, "bot_update", {:update, update})
