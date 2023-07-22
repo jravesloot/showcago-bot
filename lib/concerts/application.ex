@@ -9,7 +9,7 @@ defmodule Concerts.Application do
   def start(_type, _args) do
     children = [
       # Start the Ecto repository
-      # Concerts.Repo,
+      Concerts.Repo,
       # Start the Telemetry supervisor
       ConcertsWeb.Telemetry,
       # Start the PubSub system

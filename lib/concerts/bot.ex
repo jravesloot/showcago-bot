@@ -1,6 +1,9 @@
 defmodule Concerts.Bot do
   use GenServer
   require Logger
+  require Ecto.Query
+
+  alias Concerts.Schemas.Artist
 
   def start_link(opts) do
     GenServer.start_link(__MODULE__, opts, opts)
@@ -66,17 +69,28 @@ defmodule Concerts.Bot do
   def handle_cast({:update, update}, %{bot_key: bot_key} = state) do
     case message_text(update) do
       "ping" ->
-        Telegram.Api.request(bot_key, "sendMessage", chat_id: chat_id(update), text: "pong")
+        send_message(bot_key, chat_id(update), "pong")
+        {:noreply, state}
+      "artists" ->
+        artist_names =
+          Ecto.Query.from(a in Artist, select: a.name, order_by: {:asc, :name})
+          |> Concerts.Repo.all()
+        send_message(bot_key, chat_id(update), Enum.join(artist_names, ", "))
         {:noreply, state}
       _ ->
         {:noreply, state}
     end
   end
 
+  defp send_message(bot_key, chat_id, text) do
+      Telegram.Api.request(bot_key, "sendMessage", chat_id: chat_id, text: text)
+  end
+
   defp message_text(update) do
     update
       |> Map.get("message")
       |> Map.get("text")
+      |> String.downcase()
   end
 
   defp chat_id(update) do

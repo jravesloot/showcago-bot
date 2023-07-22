@@ -7,6 +7,14 @@
 # General application configuration
 import Config
 
+config :concerts, Concerts.Repo,
+  database: System.fetch_env!("POSTGRES_DATABASE"),
+  username: System.fetch_env!("POSTGRES_USERNAME"),
+  password: System.fetch_env!("POSTGRES_PASSWORD"),
+  hostname: System.fetch_env!("POSTGRES_HOSTNAME"),
+  port: System.fetch_env!("POSTGRES_PORT"),
+  migration_timestamps: [type: :utc_datetime_usec]
+
 config :concerts,
   ecto_repos: [Concerts.Repo]
 
