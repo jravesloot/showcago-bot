@@ -4,7 +4,7 @@ defmodule Concerts.Repo.Migrations.CreateArtist do
   def change do
     create table(:artists, primary_key: false) do
       add :id, :uuid, primary_key: true, null: false
-      add :name, :string
+      add :name, :string, null: false
 
       timestamps()
     end

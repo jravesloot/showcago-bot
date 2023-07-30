@@ -2,11 +2,14 @@ defmodule Concerts.Schemas.Artist do
   @moduledoc """
   Artist (/band/act/etc.) that plays Concerts at some Venue.
   """
-
   use Concerts.Schema
+
+  alias Concerts.Schemas.ArtistsConcerts
+  alias Concerts.Schemas.Concert
 
   schema "artists" do
     field :name, :string
+    many_to_many :concerts, Concert, join_through: ArtistsConcerts
 
     timestamps()
   end
