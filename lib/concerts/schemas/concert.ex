@@ -13,6 +13,8 @@ defmodule Concerts.Schemas.Concert do
     many_to_many :headliners, Artist, join_through: ArtistsConcerts
     field :start_time, :utc_datetime
     field :link, :string
+    # doors open
+    # date
     # openers, etc.
     # festivals?
 
@@ -23,8 +25,8 @@ defmodule Concerts.Schemas.Concert do
   @required [:venue, :artists]
 
   @spec changeset(Concert.t(), map()) :: Ecto.Changeset.t()
-  def changeset(%Concert{} = artist, params) do
-    artist
+  def changeset(%Concert{} = concert, params) do
+    concert
     |> cast(params, @optional ++ @required)
     |> validate_required(@required)
     # validate other fields

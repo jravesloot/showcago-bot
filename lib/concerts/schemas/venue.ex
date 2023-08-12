@@ -20,14 +20,14 @@ defmodule Concerts.Schemas.Venue do
   end
 
   @optional [:address_1, :address_2, :street, :city, :state, :zip_code, :website]
-  @required [:name]
+  @required [:name, :city]
 
   @spec changeset(Venue.t(), map()) :: Ecto.Changeset.t()
-  def changeset(%Venue{} = artist, params) do
-    artist
+  def changeset(%Venue{} = venue, params) do
+    venue
     |> cast(params, @optional ++ @required)
     |> validate_required(@required)
-    # validate other fields (lib for addresses?)
+    |> unique_constraint([:name, :city], message: "Venue already exists")
   end
 
   @spec query :: Ecto.Query.t()

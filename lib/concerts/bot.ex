@@ -107,6 +107,6 @@ defmodule Concerts.Bot do
   end
 
   defp schedule_next_check do
-    Process.send_after(self(), :check, 2000) # check every 2 seconds
+    Process.send_after(self(), :check, :timer.seconds(2))
   end
 end

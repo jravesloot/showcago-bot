@@ -22,6 +22,7 @@ defmodule Concerts.Schemas.Artist do
     artist
     |> cast(params, @optional ++ @required)
     |> validate_required(@required)
+    |> unique_constraint(:name, message: "Artist already exists")
   end
 
   @spec query :: Ecto.Query.t()
